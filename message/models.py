@@ -9,8 +9,16 @@ class Message(models.Model):
     subject = models.CharField(max_length=255)
     payload = models.TextField()
     date = models.DateTimeField()
-    
+
+    def __unicode__(self):
+        return self.sender_name
+
     
 class PhoneNumber(models.Model):
-    message = models.ForeignKey(Message, related_name='phoneNumbers')
+    message = models.ForeignKey(Message, related_name='phone_numbers')
     value = models.CharField('Phone', max_length=16)  
+
+    def __unicode__(self):
+        return self.value
+
+

@@ -1,0 +1,10 @@
+Hello!
+
+You was registered on site {{ site }}!
+
+To activate you account please visit http://{{ site }}{% url registration_activate activation_key %}
+
+Remember, you activation will expired after {{ expiration_days }} days.s
+
+--
+Best regards

@@ -1,0 +1,1 @@
+-e svn+http://django-registration.googlecode.com/svn/trunk/#egg=registration

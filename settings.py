@@ -98,9 +98,21 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
+
     'message',
+
+    'registration',
 )
 
-EMAIL = 'gfborn@gmail.com'
-EMAIL_PASSWD = 'topic456'
+EMAIL = ''
+EMAIL_PASSWD = ''
 MAX_THREAD = 5
+
+ACCOUNT_ACTIVATION_DAYS = 3
+LOGIN_REDIRECT_URL = '/'
+
+try:
+    from local_settings import *
+except ImportError:
+    pass
+

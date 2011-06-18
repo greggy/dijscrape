@@ -1,0 +1,23 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+				"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<title>Phone Scraper</title>
+</head>
+<body>
+
+<div>
+	{% if not user.is_authenticated %}
+		<p><a href="{% url registration_register %}">Registration</a></p>
+		<p><a href="{% url auth_login %}">Login</a></p>
+	{% else %}
+		<p><a href="{% url auth_logout %}">{{ user.username }}</a></p>
+	{% endif %}
+</div>
+
+<div>
+	{% block content %}{% endblock %}
+</div>
+
+</body>
+</html>
