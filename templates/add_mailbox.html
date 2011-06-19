@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+	<script type="text/javascript">
+		function InputVal (){
+			// input host, port values
+			var text_list = $('#id_server_choice option:selected').text().split(':');
+			$('#id_host').val(text_list[0]);
+			$('#id_ports').val(text_list[1]);
+		}
+
+		$(document).ready(function(){
+			// hide host, port fields
+			$('#id_host').closest('tr').hide();
+			$('#id_port').closest('tr').hide();
+
+			InputVal();
+
+			// choice select
+			$('#id_server_choice').change(function() {
+				var val = $(this).val();
+				if (val == 0) {
+					$('#id_host').closest('tr').show();
+					$('#id_port').closest('tr').show();
+					$('#id_host').val('');
+					$('#id_port').val('');
+				} else {
+					$('#id_host').closest('tr').hide();
+					$('#id_port').closest('tr').hide();
+					InputVal();
+				}
+				//console.log($('#id_host').val());
+			});
+		})
+	</script>
+
+	<div>
+		<table>
+			<form action="" method="post">
+				{% csrf_token %}
+
+				{{ sform.as_table }}
+				{{ mform.as_table }}
+
+				<tr><td colspan="2"><input type="submit" /></td></tr>
+			</form>
+		</table>
+	</div>
+
+	<div>
+		<p>Make sure that IMAP is available for your [account_type]</p>
+	</div>
+
+{% endblock %}

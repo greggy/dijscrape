@@ -1,9 +1,11 @@
 from django.contrib import admin
+
 from models import *
+
 
 class MessageAdmin(admin.ModelAdmin):
     model = Message
-    list_display = ('sender', 'recipient', 'sender_name', 'sender_email', 'subject', 'payload', 'date',)
+    list_display = ('sender', 'recipient', 'sender_name', 'sender_email', 'subject', 'payload', 'date_add',)
     
 
 class PhoneNumberAdmin(admin.ModelAdmin):
@@ -24,3 +26,6 @@ class PhoneNumberAdmin(admin.ModelAdmin):
 
 admin.site.register(Message, MessageAdmin)
 admin.site.register(PhoneNumber, PhoneNumberAdmin)
+
+admin.site.register(Server)
+admin.site.register(MailBox)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+import socket
+import threading
 
-import threadings
 import datetime
 import rfc822
 import time
@@ -16,6 +17,14 @@ from django.utils.encoding import smart_unicode
 from models import *
 from utils import num, uniqify
 
+'''
+import email
+from email.parser import HeaderParser 
+In [35]: h = HeaderParser()
+In [36]: h2 = h.parsestr(m[0][1])
+In [34]: email.utils.parsedate(h2['Received'].split(', ')[1])
+Out[34]: (2011, 6, 18, 7, 2, 39, 0, 1, -1)
+'''
 
 nanp_pattern = '(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?'
 number_re = re.compile(nanp_pattern)
@@ -104,27 +113,51 @@ class Analizer(threading.Thread):
 
 class IMAPConnecter:
     
-    def __init__(self, email, password):
+    def __init__(self, host, port, email=None, password=None, ssl=True):
         self.email = email
         self.password = password
-        self.mailCount = 0   
+        self.host = host
+        self.port = port
+        self.ssl = ssl
+        self.mailCount = 0
         
     def getMailCount(self):
         return self.mailCount
     
     def getConnection(self):
-        imap = imaplib.IMAP4_SSL('imap.googlemail.com')
+        #imap = imaplib.IMAP4_SSL('imap.googlemail.com')
+        if self.ssl:
+            imap = imaplib.IMAP4_SSL(self.host, self.port)
+        else:
+            imap = imaplib.IMAP4(self.host, self.port)
         imap.login(self.email, self.password)
         self.response, mailCount = imap.select()
         self.mailCount = num(mailCount[0])
         return imap
 
+    def check_connection(self):
+        u'''
+            Checker if server's host, port correct.
+        '''
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.connect((self.host, self.port))
+            s.shutdown(2)
+            return True
+        except:
+            return False
+
 
 class Scraper:
-    
-    def __init__(self, email, password):
+    u'''
+        port 993 - SSL connection
+        port 143 - simple connection (unsecured)
+    '''
+    def __init__(self, host, email, password, port=993, ssl=True):
         self.email = email
         self.password = password
+        self.host = host
+        self.port = port
         self.analizers = []
         
     def startThread(self, thread):
@@ -134,7 +167,7 @@ class Scraper:
                    
     def run(self):
         print 'Connecting to the Google IMAP server'
-        conn = IMAPConnecter(self.email, self.password)
+        conn = IMAPConnecter(self.host, self.port, self.email, self.password)
         imap = conn.getConnection()
 
         print "Messages to process:", conn.getMailCount()
