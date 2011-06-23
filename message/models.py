@@ -11,7 +11,6 @@ class Message(models.Model):
     subject = models.CharField(max_length=255)
     payload = models.TextField()
     date_add = models.DateTimeField(auto_now_add=True)
-    date_received = models.DateTimeField()
 
     def __unicode__(self):
         return self.sender_name

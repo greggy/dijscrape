@@ -20,11 +20,12 @@ class ServerForm(forms.ModelForm):
 
     def clean(self):
         cd = self.cleaned_data
-        scrap = scraper.IMAPConnecter(host=cd['host'], port=cd['port'])
-        check_connection = scrap.check_connection()
-        if not check_connection:
-            raise forms.ValidationError(u"Check if imap server's host/port correct!")
-        return self.cleaned_data
+        if cd['server_choice'] == u'0':
+            scrap = scraper.IMAPConnecter(host=cd['host'], port=cd['port'])
+            check_connection = scrap.check_connection()
+            if not check_connection:
+                raise forms.ValidationError(u"Check if imap server's host/port correct!")
+        return cd
 
 
 class MailBoxForm(forms.ModelForm):

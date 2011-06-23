@@ -17,7 +17,7 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.sqlite3', #postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': './test.db',                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
@@ -110,6 +110,14 @@ MAX_THREAD = 5
 
 ACCOUNT_ACTIVATION_DAYS = 3
 LOGIN_REDIRECT_URL = '/'
+
+# email settings
+DEFAULT_FROM_EMAIL = 'dijscrape@gmail.com'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'dijscrape@gmail.com'
+EMAIL_HOST_PASSWORD = 'qw3rty123'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 
 try:
     from local_settings import *
