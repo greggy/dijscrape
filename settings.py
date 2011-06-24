@@ -102,6 +102,7 @@ INSTALLED_APPS = (
     'message',
 
     'registration',
+    'south',
 )
 
 EMAIL = ''

@@ -19,7 +19,8 @@ class Message(models.Model):
 class PhoneNumber(models.Model):
     user = models.ForeignKey(User)
     message = models.ForeignKey(Message, related_name='phone_numbers')
-    value = models.CharField('Phone', max_length=16)  
+    value = models.CharField('Phone', max_length=16)
+    mailbox = models.ForeignKey('MailBox')
 
     def __unicode__(self):
         return self.value
@@ -61,3 +62,5 @@ class MailBox(models.Model):
     def __unicode__(self):
         return u'%s %s %s' % (self.server, self.username, self.status)
 
+    class Meta:
+        unique_together = (('username', 'password'),)

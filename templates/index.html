@@ -3,7 +3,28 @@
 
 {% block content %}
 
+	<script type="text/javascript">
+	function ReScrape(mailbox_id) {
+		$.get('/rescrape/'+mailbox_id+'/');
+	}
+	</script>
+
 	<h2>Scrape phone numbers from you email box.</h2>
 	<p><a href="{% url add-mailbox %}">Add mailbox to scrape</a></p>
+
+	{% regroup phones by mailbox as phones_list %}
+
+	{% for mailbox in phones_list %}
+	<h3>{{ mailbox.grouper.username }}</h3>
+		<a href="javascript:void(0);" onclick="javascript:ReScrape({{ mailbox.grouper.id }});">Re-Scrape again</a>
+		<table>
+		{% for item in mailbox.list %}
+			<tr>
+				<td>{{ item.message.sender_name }}</td>
+				<td>{{ item.value }}</td>
+			</tr>
+		{% endfor %}
+		</table>
+	{% endfor %}
 
 {% endblock %}

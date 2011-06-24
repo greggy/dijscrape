@@ -23,11 +23,12 @@ email_re = re.compile('("?([a-zA-Z 0-9\._\-]+)"?\s+)?<?([a-zA-Z0-9\._\-]+@[a-zA-
     
 
 class Analizer:
-    def __init__(self, imap, number, user):
+    def __init__(self, imap, number, user, mailbox):
         #threading.Thread.__init__(self)
         self.number = number
         self.imap = imap
         self.user = user
+        self.mailbox = mailbox
 
     def search_phone(self):
         print 'processing message num: ' + str(self.number)
@@ -95,7 +96,7 @@ class Analizer:
             for phone_number in pure_digits:
                 if len(str(phone_number)) > 7:  # for now, we want numbers with area codes only.
                     print phone_number
-                    PhoneNumber(value=phone_number, message=m, user=self.user).save()
+                    PhoneNumber(value=phone_number, message=m, user=self.user, mailbox=self.mailbox).save()
 
 
 class IMAPConnecter:
@@ -152,9 +153,10 @@ class Scraper:
 
         response, list_of_messages = imap.search(None, 'ALL')
         mlist = list_of_messages[0].split()
+        mailbox = MailBox.objects.get(username=self.email, password=self.password)
 
         for item in range(0, conn.get_mail_count()):
-            analizer = Analizer(imap, mlist[item], self.user)
+            analizer = Analizer(imap, mlist[item], self.user, mailbox)
             analizer.search_phone()
 
         return conn.get_mail_count()

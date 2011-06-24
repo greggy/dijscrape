@@ -2,6 +2,7 @@
 
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse
 from django.shortcuts import redirect
 
 from lib import render_to
@@ -13,8 +14,15 @@ from forms import *
 @login_required()
 @render_to('index.html')
 def index(request):
-    return {}
+    phones = PhoneNumber.objects.filter(user=request.user)
+    return {'phones': phones}
 
+
+@login_required()
+def rescrape(request, mailbox_id):
+    mailbox = MailBox.objects.get(pk=mailbox_id)
+    tasks.mailbox_phones.delay(mailbox.server.host, mailbox.username, mailbox.password, request.user)
+    return HttpResponse("OK")
 
 
 @login_required()

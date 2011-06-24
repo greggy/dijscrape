@@ -10,7 +10,7 @@ class MessageAdmin(admin.ModelAdmin):
 
 class PhoneNumberAdmin(admin.ModelAdmin):
     model = PhoneNumber
-    list_display = ('name', 'email', 'value', 'preview')
+    list_display = ('name', 'email', 'value', 'preview', 'mailbox')
     
     search_fields = ['message__sender_name', 'message__sender_email', 'value',]
     
