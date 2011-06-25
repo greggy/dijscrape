@@ -1,9 +1,26 @@
 # -*- coding: utf-8 -*-
 
 from django import forms
-from message import scraper
 
+from message import scraper
 from models import *
+
+from registration.forms import RegistrationFormUniqueEmail
+from registration.models import RegistrationProfile
+
+
+class RegisterForm(RegistrationFormUniqueEmail):
+    def save(self, profile_callback=None):
+        new_user = RegistrationProfile.objects.create_inactive_user(
+            username=self.cleaned_data['username'],
+            password=self.cleaned_data['password1'],
+            email=self.cleaned_data['email'])
+
+        new_account = Account.objects.create(
+            user=new_user
+        )
+
+        return new_user
 
 
 class ServerForm(forms.ModelForm):

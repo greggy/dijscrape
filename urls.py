@@ -4,7 +4,7 @@ from django.views.generic.simple import redirect_to
 
 from django.contrib import admin
 
-from registration.forms import RegistrationFormUniqueEmail
+from message.forms import RegisterForm
 
 
 admin.autodiscover()
@@ -15,9 +15,11 @@ urlpatterns = patterns('',
     url(r'^add_mailbox/success/$', 'django.views.generic.simple.direct_to_template',
             {'template': 'add_mailbox_success.html'}, name='add-mailbox-success'),
     url(r'^rescrape/(\d+)/$', 'message.views.rescrape', name='rescrape'),
+    url(r'^payment/$', 'django.views.generic.simple.direct_to_template',
+            {'template': 'payment.html'}, name='payment'),
 
     url(r'^accounts/register/$', 'registration.views.register',
-            {'form_class': RegistrationFormUniqueEmail}, name='registration_register'),
+            {'form_class': RegisterForm}, name='registration_register'),
     (r'^accounts/', include('registration.urls')),
 
     (r'^admin/', include(admin.site.urls)),

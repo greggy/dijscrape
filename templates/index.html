@@ -10,21 +10,25 @@
 	</script>
 
 	<h2>Scrape phone numbers from you email box.</h2>
-	<p><a href="{% url add-mailbox %}">Add mailbox to scrape</a></p>
+	<p><a href="{% url add-mailbox %}">Add mailbox to scrape</a> <a href="{% url payment %}">SUBSCRIBE NOW</a></p>
 
-	{% regroup phones by mailbox as phones_list %}
-
-	{% for mailbox in phones_list %}
-	<h3>{{ mailbox.grouper.username }}</h3>
-		<a href="javascript:void(0);" onclick="javascript:ReScrape({{ mailbox.grouper.id }});">Re-Scrape again</a>
-		<table>
-		{% for item in mailbox.list %}
-			<tr>
-				<td>{{ item.message.sender_name }}</td>
-				<td>{{ item.value }}</td>
-			</tr>
-		{% endfor %}
-		</table>
+	{% for mailbox in mailboxes %}
+	<h3>{{ mailbox.username }}</h3>
+		<p>
+			<a href="javascript:void(0);" onclick="javascript:ReScrape({{ mailbox.id }});">Re-Scrape this mailbox</a>
+			<table border="1">
+				<tr><th>Name</th><th>Phone</th><th>Email</th><th>Subject</th><th>Context</th></tr>
+				{% for item in mailbox.phonenumber_set.all %}
+				<tr>
+					<td>{{ item.message.sender_name }}</td>
+					<td>{% if forloop.counter > 3 and user.get_profile.mode == 1 %}Trail mode{% else %}{{ item.value }}{% endif %}</td>
+					<td>{{ item.message.sender_email }}</td>
+					<td>{{ item.message.subject }}</td>
+					<td>{{ item.message.payload|truncatewords:"10" }}</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</p>
 	{% endfor %}
 
 {% endblock %}

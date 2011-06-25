@@ -37,15 +37,35 @@
 	</script>
 
 	<div>
+		{% if sform.errors or mform.errors %}
+			<h3>We had a problem loging in</h3>
+		{% else %}
+			<h3>Enter data to scrape phones</h3>
+		{% endif %}
 		<table>
-			<form action="" method="post">
-				{% csrf_token %}
+			<tr>
+				{% if sform.errors or mform.errors %}
+				<td>
+					<ol>
+						<li>Make sure we have the correct email address</li>
+						<li>Make sure we have the correct password</li>
+						<li>Make sure that IMAP is enabled for your account</li>
+					</ol>
+				</td>
+				{% endif %}
+				<td>
+					<table>
+						<form action="" method="post">
+							{% csrf_token %}
 
-				{{ sform.as_table }}
-				{{ mform.as_table }}
+							{{ sform.as_table }}
+							{{ mform.as_table }}
 
-				<tr><td colspan="2"><input type="submit" /></td></tr>
-			</form>
+							<tr><td colspan="2"><input type="submit" /></td></tr>
+						</form>
+					</table>
+				</td>
+			</tr>
 		</table>
 	</div>
 

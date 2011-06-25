@@ -29,3 +29,4 @@ admin.site.register(PhoneNumber, PhoneNumberAdmin)
 
 admin.site.register(Server)
 admin.site.register(MailBox)
+admin.site.register(Account)

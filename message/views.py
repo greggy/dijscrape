@@ -14,8 +14,8 @@ from forms import *
 @login_required()
 @render_to('index.html')
 def index(request):
-    phones = PhoneNumber.objects.filter(user=request.user)
-    return {'phones': phones}
+    mailboxes = MailBox.objects.filter(user=request.user)
+    return {'mailboxes': mailboxes}
 
 
 @login_required()

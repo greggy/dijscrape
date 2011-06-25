@@ -112,6 +112,8 @@ MAX_THREAD = 5
 ACCOUNT_ACTIVATION_DAYS = 3
 LOGIN_REDIRECT_URL = '/'
 
+AUTH_PROFILE_MODULE = "message.Account"
+
 # email settings
 DEFAULT_FROM_EMAIL = 'dijscrape@gmail.com'
 EMAIL_HOST = 'smtp.gmail.com'

@@ -44,8 +44,7 @@ class Server(models.Model):
 STATUS_CHOICE = (
     (1, u'Just Added'),
     (2, u'In Progress'),
-    (3, u'Invalid'),
-    (4, u'Finished')
+    (3, u'Finished')
 )
 
 class MailBox(models.Model):
@@ -64,3 +63,19 @@ class MailBox(models.Model):
 
     class Meta:
         unique_together = (('username', 'password'),)
+        verbose_name = u'MailBox'
+        verbose_name_plural = u'MailBoxes'
+
+
+MODE_CHOICE = (
+    (1, u'Trial'),
+    (2, u'Paid')
+)
+
+class Account(models.Model):
+    user = models.OneToOneField(User)
+    mode = models.PositiveSmallIntegerField(choices=MODE_CHOICE, default=1)
+    paid_until = models.DateTimeField(blank=True, null=True)
+
+    def __unicode__(self):
+        return self.user.username
