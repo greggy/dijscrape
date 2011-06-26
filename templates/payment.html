@@ -7,14 +7,17 @@
 	<p>You can subscribe to LostPhoneNumbers for only $9/month or for $99/year</p>
 
 
-	<form action="" method="post">
+	<form action="" method="post" name="theform" id="amount-form">{% csrf_token %}
 		<table>
 			<tr><td>
-				<label><input type="radio" name="" value="9" /> $9/month</label>
-				<label><input type="radio" name="" value="99" /> $99/year</label>
+				<label><input type="radio" name="amount" value="9" checked /> $9.00/month</label>
 			</td><td>
-				<input type="submit" value="Subscribe with PayPal" />
-				<input type="submit" value="Subscribe with Credit Card" />
+				<input type="submit" name="submit" value="Subscribe with PayPal" onClick="document.theform.action='{% url payment-paypal %}';">
+			</td></tr>
+			<tr><td>
+				<label><input type="radio" name="amount" value="99" /> $99.00/year</label>
+			</td><td>
+				<button>Subscribe with Credit Card</button>
 			</td></tr>
 		</table>
 	</form>

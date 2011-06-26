@@ -14,7 +14,7 @@
 		<p><a href="{% url registration_register %}">Registration</a></p>
 		<p><a href="{% url auth_login %}">Login</a></p>
 	{% else %}
-		<p><a href="{% url auth_logout %}">{{ user.username }}</a></p>
+		<p><a href="{% url auth_logout %}">Logout as {{ user.username }}</a></p>
 	{% endif %}
 </div>
 

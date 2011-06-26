@@ -1,3 +1,3 @@
-function Test() {
-
+function SelectPayment(url) {
+	s
 }

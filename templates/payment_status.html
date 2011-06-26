@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+	{% if status == 'success' %}
+		<h2>Now your account is paid.</h2>
+	{% else %}
+		<h2>You canceled to pay.</h2>
+	{% endif %}
+
+{% endblock %}
