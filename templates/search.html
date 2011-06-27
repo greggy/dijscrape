@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+	<h2>Found {{ phones.count }} objects</h2>
+
+	<p>
+		<table border="1">
+			<tr><th>Name</th><th>Phone</th><th>Email</th><th>Subject</th><th>Context</th></tr>
+			{% for item in phones %}
+			<tr>
+				<td>{{ item.message.sender_name }}</td>
+				<td>{% if forloop.counter > 3 and user.get_profile.mode == 1 %}Trail mode{% else %}{{ item.value }}{% endif %}</td>
+				<td>{{ item.message.sender_email }}</td>
+				<td>{{ item.message.subject }}</td>
+				<td>{{ item.message.payload|truncatewords:"10" }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</p>
+
+{% endblock %}

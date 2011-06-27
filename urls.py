@@ -11,6 +11,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', 'message.views.index', name='index'),
+    url(r'^search/$', 'message.views.search', name='search'),
     url(r'^add_mailbox/$', 'message.views.add_mailbox', name='add-mailbox'),
     url(r'^edit_mailbox/(\d+)/$', 'message.views.edit_mailbox', name='edit-mailbox'),
     url(r'^add_mailbox/success/$', 'django.views.generic.simple.direct_to_template',

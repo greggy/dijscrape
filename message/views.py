@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import uuid
+from django.db.models.query_utils import Q
 from paypal.standard.forms import PayPalPaymentsForm
 from paypal.standard.ipn.signals import payment_was_successful
 
@@ -100,6 +101,20 @@ def edit_mailbox(request, mailbox_id):
         sform = ServerForm(instance=mailbox.server)
         mform = MailBoxForm(instance=mailbox)
     return {'sform': sform, 'mform': mform}
+
+
+
+@login_required()
+@render_to('search.html')
+def search(request):
+    query = request.GET.get('q', '')
+    phones = PhoneNumber.objects.filter(Q(value__icontains=query, user=request.user) |
+                                       Q(message__sender_name__icontains=query, user=request.user) |
+                                       Q(message__sender_email__icontains=query, user=request.user) |
+                                       Q(message__subject__icontains=query, user=request.user) |
+                                       Q(message__payload__icontains=query, user=request.user)
+    )
+    return {'phones': phones}
 
 
 # Payment

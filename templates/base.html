@@ -22,6 +22,12 @@
 		<p>Expired data: {{ user.get_profile.paid_until|date:"M d Y H:i" }}</p>
 	{% endif %}
 
+	<div>
+		<form action="{% url search %}" method="get">
+			<input type="text" name="q" />
+			<input type="submit" value="Search" />
+		</form>
+	</div>
 </div>
 
 <div>
