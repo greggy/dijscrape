@@ -1,0 +1,6 @@
+Hello!
+
+We've finished scraping your account!  Go check out all the numbers ({{ count }}) we've found
+in your brand new address book: http://{{ host }}/
+
+--

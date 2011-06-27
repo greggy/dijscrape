@@ -7,7 +7,7 @@ from paypal.standard.ipn.signals import payment_was_successful
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 
@@ -33,7 +33,8 @@ def index(request):
 @login_required()
 def rescrape(request, mailbox_id):
     mailbox = MailBox.objects.get(pk=mailbox_id)
-    tasks.mailbox_phones.delay(mailbox.server.host, mailbox.username, mailbox.password, request.user)
+    tasks.mailbox_phones.delay(mailbox.server.host, mailbox.username,
+                               mailbox.password, request.user, request.get_host())
     return HttpResponse("OK")
 
 
@@ -61,7 +62,7 @@ def add_mailbox(request):
             mailbox.server = server
             mailbox.save()
             # add asynchronous task
-            tasks.mailbox_phones.delay(scd['host'], mcd['username'], mcd['password'], request.user)
+            tasks.mailbox_phones.delay(scd['host'], mcd['username'], mcd['password'], request.user, request.get_host())
             #tasks.test.delay(23, 44)
             return redirect(reverse('add-mailbox-success'))
         else:
@@ -75,6 +76,33 @@ def add_mailbox(request):
     return {'sform': sform, 'mform': mform}
 
 
+
+@login_required()
+@render_to('add_mailbox.html')
+def edit_mailbox(request, mailbox_id):
+    mailbox = get_object_or_404(MailBox, pk=mailbox_id, user=request.user)
+    if request.method == 'POST':
+        sform = ServerForm(request.POST, instance=mailbox.server)
+        mform = MailBoxForm(request.POST, instance=mailbox)
+        if sform.is_valid() and mform.is_valid():
+            scd = sform.cleaned_data
+            mcd = mform.cleaned_data
+            try:
+                server = Server.objects.get(host=scd['host'], port=scd['port'])
+            except Server.DoesNotExist:
+                server = sform.save()
+            mailbox = mform.save(commit=False)
+            mailbox.user = request.user
+            mailbox.server = server
+            mailbox.save()
+            return redirect(reverse('index'))
+    else:
+        sform = ServerForm(instance=mailbox.server)
+        mform = MailBoxForm(instance=mailbox)
+    return {'sform': sform, 'mform': mform}
+
+
+# Payment
 @login_required()
 @render_to('set_paypal.html')
 def set_paypal(request):
@@ -108,7 +136,7 @@ def payment_status(request, status):
 
 def ipn_success(sender, **kwargs):
     u'''
-        Signal to enable subscription. This signal catch PP notify url response.
+        Signal to enable subscription. This signal catched by PP notify url response.
     '''
     ipn_obj = sender
     user = User.objects.get(pk=ipn_obj.invoice.split('_')[0])

@@ -37,7 +37,7 @@ class ServerForm(forms.ModelForm):
 
     def clean(self):
         cd = self.cleaned_data
-        if cd['server_choice'] == u'0':
+        if cd['server_choice'] == u'0' and cd.get('host') and cd.get('port'):
             scrap = scraper.IMAPConnecter(host=cd['host'], port=cd['port'])
             check_connection = scrap.check_connection()
             if not check_connection:

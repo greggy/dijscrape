@@ -13,8 +13,10 @@
 
 		$(document).ready(function(){
 			// hide host, port fields
-			$('#id_host').closest('tr').hide();
-			$('#id_port').closest('tr').hide();
+			if ($('#id_server_choice').val() > 0) {
+				$('#id_host').closest('tr').hide();
+				$('#id_port').closest('tr').hide();
+			}
 
 			InputVal();
 

@@ -159,4 +159,8 @@ class Scraper:
             analizer = Analizer(imap, mlist[item], self.user, mailbox)
             analizer.search_phone()
 
+        mailbox.status = 3
+        mailbox.last_scrape = datetime.datetime.now()
+        mailbox.save()
+
         return conn.get_mail_count()
