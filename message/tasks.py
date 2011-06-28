@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 
 from celery.decorators import task
 
@@ -37,6 +38,10 @@ def mailbox_phones(host, username, password, user,
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [acc.added_email])
         else:
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+
+    mailbox.status = 3
+    mailbox.last_scrape = datetime.datetime.now()
+    mailbox.save()
 
     return ans
 

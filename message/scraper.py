@@ -20,7 +20,7 @@ from utils import num, uniqify
 nanp_pattern = '(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?'
 number_re = re.compile(nanp_pattern)
 email_re = re.compile('("?([a-zA-Z 0-9\._\-]+)"?\s+)?<?([a-zA-Z0-9\._\-]+@[a-zA-Z0-9\._\-]+)>?')
-    
+
 
 class Analizer:
     def __init__(self, imap, number, user, mailbox):
@@ -143,7 +143,7 @@ class Scraper:
         self.port = port
         self.user = user
         self.analizers = []
-                   
+
     def run(self):
         print 'Connecting to the Google IMAP server'
         conn = IMAPConnecter(self.host, self.port, self.email, self.password)
@@ -158,9 +158,5 @@ class Scraper:
         for item in range(0, conn.get_mail_count()):
             analizer = Analizer(imap, mlist[item], self.user, mailbox)
             analizer.search_phone()
-
-        mailbox.status = 3
-        mailbox.last_scrape = datetime.datetime.now()
-        mailbox.save()
 
         return conn.get_mail_count()

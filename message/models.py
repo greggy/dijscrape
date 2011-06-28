@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -59,7 +60,7 @@ class MailBox(models.Model):
     username = models.CharField(max_length=255, unique=True)
     password = models.CharField(max_length=100)
     status = models.PositiveSmallIntegerField(choices=STATUS_CHOICE, default=1)
-    last_scrape = models.DateTimeField(blank=True, null=True)
+    last_scrape = models.DateTimeField(default=datetime.now())
 
     def __unicode__(self):
         return u'%s %s %s' % (self.server, self.username, self.status)

@@ -8,7 +8,7 @@
 	<p>Give us the email address you want us to contact you at at when the scraper is ready.</p>
 
 	<p>Note: We will send scraper email to
-		{% if user.get_profile.added_email %}{{ if user.get_profile.added_email }}{% else %}{{ user.email }}{% endif %},
+		{% if user.get_profile.added_email %}{{ user.get_profile.added_email }}{% else %}{{ user.email }}{% endif %},
 		but maybe you want us to contact you elsewhere. *</p>
 
 	<p>
