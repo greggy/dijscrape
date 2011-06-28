@@ -50,3 +50,11 @@ class MailBoxForm(forms.ModelForm):
         model = MailBox
         fields = ('username', 'password')
 
+
+class AddEmailForm(forms.ModelForm):
+    class Meta:
+        model = Account
+        fields = ('added_email',)
+
+
+

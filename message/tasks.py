@@ -31,7 +31,12 @@ def mailbox_phones(host, username, password, user,
 
         message = render_to_string('scrape_email.txt', { 'host': current_host, 'count': ans })
 
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+        acc = user.get_profile()
+
+        if acc.added_email:
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [acc.added_email])
+        else:
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
 
     return ans
 

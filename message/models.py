@@ -74,6 +74,7 @@ class Account(models.Model):
     user = models.OneToOneField(User)
     mode = models.PositiveSmallIntegerField(choices=MODE_CHOICE, default=1)
     paid_until = models.DateTimeField(blank=True, null=True)
+    added_email = models.EmailField(blank=True, null=True)
 
     def __unicode__(self):
         return self.user.username

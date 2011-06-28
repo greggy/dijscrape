@@ -65,7 +65,7 @@ def add_mailbox(request):
             # add asynchronous task
             tasks.mailbox_phones.delay(scd['host'], mcd['username'], mcd['password'], request.user, request.get_host())
             #tasks.test.delay(23, 44)
-            return redirect(reverse('add-mailbox-success'))
+            return redirect(reverse('add-mailbox-success', args=[mailbox.id]))
         else:
             print sform.errors, mform.errors
     else:
@@ -102,6 +102,20 @@ def edit_mailbox(request, mailbox_id):
         mform = MailBoxForm(instance=mailbox)
     return {'sform': sform, 'mform': mform}
 
+
+
+@login_required()
+@render_to('add_mailbox_success.html')
+def add_mailbox_success(request, mailbox_id):
+    mailbox = get_object_or_404(MailBox, pk=mailbox_id, user=request.user)
+    if request.method == 'POST':
+        form = AddEmailForm(request.POST, instance=mailbox.user)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('index'))
+    else:
+        form = AddEmailForm(instance=mailbox.user)
+    return {'form': form}
 
 
 @login_required()

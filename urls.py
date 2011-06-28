@@ -14,8 +14,7 @@ urlpatterns = patterns('',
     url(r'^search/$', 'message.views.search', name='search'),
     url(r'^add_mailbox/$', 'message.views.add_mailbox', name='add-mailbox'),
     url(r'^edit_mailbox/(\d+)/$', 'message.views.edit_mailbox', name='edit-mailbox'),
-    url(r'^add_mailbox/success/$', 'django.views.generic.simple.direct_to_template',
-            {'template': 'add_mailbox_success.html'}, name='add-mailbox-success'),
+    url(r'^add_mailbox_success/(\d+)/$', 'message.views.add_mailbox_success', name='add-mailbox-success'),
     url(r'^rescrape/(\d+)/$', 'message.views.rescrape', name='rescrape'),
 
     # payment urls

@@ -3,6 +3,26 @@
 
 {% block content %}
 
-	<h2>Mailbox was added successful. After sraper finished you will get the email.</h2>
+	<h2>Great! We're Indexing You Phone Numbers.</h2>
+
+	<p>Give us the email address you want us to contact you at at when the scraper is ready.</p>
+
+	<p>Note: We will send scraper email to
+		{% if user.get_profile.added_email %}{{ if user.get_profile.added_email }}{% else %}{{ user.email }}{% endif %},
+		but maybe you want us to contact you elsewhere. *</p>
+
+	<p>
+		<table>
+			<form action="" method="post">
+				{% csrf_token %}
+				{{ form.as_table }}
+				<tr><td colspan="2"><input type="submit" /></td></tr>
+			</form>
+		</table>
+	</p>
+
+	<p>
+		* Remember: If scraper will be ready before you enter the new email, it send the result email to default address.
+	</p>
 
 {% endblock %}
