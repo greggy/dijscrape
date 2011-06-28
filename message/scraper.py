@@ -58,11 +58,12 @@ class Analizer:
             ### need to cast the Date header into a MySQL object.
             ts = header['Date']
             print 'header date: ' + str(ts)
+            print 'header received:', header['Received'].split(';')[-1]
             if rfc822.parsedate_tz(ts) is not None: #making sure the date header is not empty
                 ts_tuple = rfc822.parsedate_tz(ts)
             #perhaps in the future we can intead set the ts_tuple to (0,0,0,0,0,0,0) and interpret it in the UI as 'no date header'. assuming that is actually the problem.
             #otherwise, we're setting it to the date of the most recently received email... and this could get awkward. #TODO: fix this once the UI is ready.
-            ts_python_datetime = datetime.datetime(*(ts_tuple[0:6]))
+            ts_python_datetime = datetime(*(ts_tuple[0:6]))
             ts_mysql_datetime = ts_python_datetime.isoformat(' ')
 
             print 'about to insert into the database'
@@ -159,4 +160,9 @@ class Scraper:
             analizer = Analizer(imap, mlist[item], self.user, mailbox)
             analizer.search_phone()
 
+
+        mailbox.status = 3
+        mailbox.last_scrape = datetime.now()
+        mailbox.save()
+        
         return conn.get_mail_count()
