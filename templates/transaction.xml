@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<transaction>
+  <amount_in_cents>{{ amount }}</amount_in_cents>
+  <description>Charge for ScrapePhoneNumbers</description>
+  <account>
+    <account_code>{{ account }}</account_code>
+    <username>{{ username }}</username>
+    <email>{{ email }}</email>
+    <first_name>{{ first_name }}</first_name>
+    <last_name>{{ last_name }}</last_name>
+    <company_name>Test Company</company_name>
+    <billing_info>
+      <first_name>{{ first_name }}</first_name>
+      <last_name>{{ last_name }}</last_name>
+      <address1>{{ address1 }}</address1>
+      <address2>{{ address2 }}</address2>
+      <city>{{ city }}</city>
+      <state>{{ state }}</state>
+      <zip>{{ zip }}</zip>
+      <country>{{ country }}</country>
+      <ip_address>{{ ip_address }}</ip_address>
+      <credit_card>
+        <number>{{ number }}</number>
+        <verification_value>{{ vv }}</verification_value>
+        <year>{{ year }}</year>
+        <month>{{ month }}</month>
+      </credit_card>
+    </billing_info>
+  </account>
+</transaction>

@@ -17,7 +17,8 @@
 			<tr><td>
 				<label><input type="radio" name="amount" value="99" /> $99.00/year</label>
 			</td><td>
-				<button>Subscribe with Credit Card</button>
+				<input type="submit" name="submit" value="Subscribe with Credit Card"
+							 onClick="document.theform.action='{% url payment-recurly %}'; document.theform.method='get'">
 			</td></tr>
 		</table>
 	</form>

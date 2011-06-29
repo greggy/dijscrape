@@ -3,16 +3,11 @@ import socket
 #import threading
 
 import datetime
-import rfc822
-import time
 import re
 import imaplib
 import sys
-import os
 from email.parser import HeaderParser
-
-from django.conf import settings
-from django.utils.encoding import smart_unicode
+from dateutil.parser import parse
 
 from models import *
 from utils import num, uniqify
@@ -23,6 +18,8 @@ email_re = re.compile('("?([a-zA-Z 0-9\._\-]+)"?\s+)?<?([a-zA-Z0-9\._\-]+@[a-zA-
 
 
 class Analizer:
+    found_phones = 0
+
     def __init__(self, imap, number, user, mailbox):
         #threading.Thread.__init__(self)
         self.number = number
@@ -40,6 +37,15 @@ class Analizer:
 
         raw_message = message_data[0][1] # message_data, the data structure returned by imaplib, encodes some data re: the request type
         header = HeaderParser().parsestr(raw_message)
+
+        '''
+        # check if email wasn't scrape earlier
+        print 'header received:', header['Received'].split(';')[-1]
+        date_str = header['Received'].split(';')[-1]
+        date = datetime( *(rfc822.parsedate_tz(date_str)[:6]) )
+        if date > self.mailbox.last_scrape:
+        '''
+
         if header['Content-Type'] is not None and 'multipart' in header['Content-Type']:
             print "INcorrect content type"
             return False # right now we're just skipping any multipart messages. this needs to be rewritten to parse the text parts of said messgs.
@@ -58,13 +64,8 @@ class Analizer:
             ### need to cast the Date header into a MySQL object.
             ts = header['Date']
             print 'header date: ' + str(ts)
-            print 'header received:', header['Received'].split(';')[-1]
-            if rfc822.parsedate_tz(ts) is not None: #making sure the date header is not empty
-                ts_tuple = rfc822.parsedate_tz(ts)
-            #perhaps in the future we can intead set the ts_tuple to (0,0,0,0,0,0,0) and interpret it in the UI as 'no date header'. assuming that is actually the problem.
-            #otherwise, we're setting it to the date of the most recently received email... and this could get awkward. #TODO: fix this once the UI is ready.
-            ts_python_datetime = datetime(*(ts_tuple[0:6]))
-            ts_mysql_datetime = ts_python_datetime.isoformat(' ')
+            if parse(ts) is not None: #making sure the date header is not empty
+                date = parse(ts)
 
             print 'about to insert into the database'
             ### sometimes it fails due to unicode issues
@@ -85,7 +86,7 @@ class Analizer:
                     sender_name=str(name)[:255],
                     sender_email=email[:255],
                     subject=header['Subject'][:255],
-                    date_add=ts_mysql_datetime,
+                    date_add=date,
                     payload=str(text_payload[:65534])
                 )
                 m.save()
@@ -98,6 +99,7 @@ class Analizer:
                 if len(str(phone_number)) > 7:  # for now, we want numbers with area codes only.
                     print phone_number
                     PhoneNumber(value=phone_number, message=m, user=self.user, mailbox=self.mailbox).save()
+                    self.found_phones += 1
 
 
 class IMAPConnecter:
@@ -156,13 +158,11 @@ class Scraper:
         mlist = list_of_messages[0].split()
         mailbox = MailBox.objects.get(username=self.email, password=self.password)
 
+        phones = 0
         for item in range(0, conn.get_mail_count()):
             analizer = Analizer(imap, mlist[item], self.user, mailbox)
             analizer.search_phone()
-
-
-        mailbox.status = 3
-        mailbox.last_scrape = datetime.now()
-        mailbox.save()
+            phones += analizer.found_phones
+        print phones
         
-        return conn.get_mail_count()
+        return phones

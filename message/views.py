@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+import base64
+import urllib2
 import uuid
-from django.db.models.query_utils import Q
-from paypal.standard.forms import PayPalPaymentsForm
-from paypal.standard.ipn.signals import payment_was_successful
 
+from django.db.models.query_utils import Q
+from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
+
+from paypal.standard.forms import PayPalPaymentsForm
+from paypal.standard.ipn.signals import payment_was_successful
 
 from lib import render_to
 from message import tasks
@@ -184,3 +187,86 @@ def ipn_success(sender, **kwargs):
     print "Mode was changed for %s." % user.username
 
 payment_was_successful.connect(ipn_success)
+
+
+@login_required()
+@render_to('set_recurly.html')
+def set_recurly(request):
+    amount = request.GET.get('amount', 9)
+    user = request.user
+    if request.method == 'POST':
+        form = RecurlyForm(request.POST, instance=request.user)
+        if form.is_valid():
+            cd = form.cleaned_data
+            form.save()
+            xml_context = {
+                'amount': int(amount) * 100,
+                'account': str(uuid.uuid4()).replace('-', '')[:8],
+                'username': user.username,
+                'email': cd['email'],
+                'first_name': cd['first_name'],
+                'last_name': cd['last_name'],
+                'address1': cd['address1'],
+                'address2': cd['address2'],
+                'city': cd['city'],
+                'state': cd['state'],
+                'zip': cd['zip'],
+                'country': cd['country'],
+                'ip_address': request.META['REMOTE_ADDR'] if request.META.get('REMOTE_ADDR') else request.META.get('HTTP_X_FORWARDED_FOR', '8.8.8.8'),
+                'number': cd['number'],
+                'vv': cd['verification_value'],
+                'year': cd['year'],
+                'month': cd['month'],
+            }
+            xml = render_to_string('transaction.xml', xml_context)
+
+            url = 'https://%s.recurly.com/transactions' % settings.RSUBDOMAIN
+            opener = urllib2.build_opener(urllib2.HTTPHandler)
+            header = urllib2.Request(url=url, data=xml)
+            #header.get_method = 'POST'
+            header.add_header('Accept', 'application/xml')
+            header.add_header('Content-Type', 'application/xml; charset=utf-8')
+            header.add_header('Authorization', 'Basic %s' % base64.standard_b64encode('%s:%s' % (settings.RUSER, settings.RPASSWD)))
+
+            try:
+                response = opener.open(header)
+                xml_response = response.read()
+            except urllib2.HTTPError, e:
+                xml_response = e.read()
+            except urllib2.URLError, e:
+                print e
+
+            #print xml_response
+            if xml_response is '':
+                response = None
+            else:
+                from xml.etree.ElementTree import fromstring
+
+                tree = fromstring(xml_response)
+                try:
+                    status = tree.find('status')
+                    amount = tree.find('amount_in_cents')
+                    print status.text
+
+                    Payment.objects.create(user=user, amount=(int(amount.text) / 100))
+                    acc = user.get_profile()
+                    dt_now = datetime.now()
+                    period = PAYMENT_PERIOD[float(int(amount.text) / 100)]
+                    if period == 'month':
+                        acc.paid_until = dt_now.replace(month=dt_now.month+1)
+                        acc.mode = 2
+                    elif period == 'year':
+                        acc.paid_until = dt_now.replace(year=dt_now.year+1)
+                        acc.mode = 3
+                    acc.save()
+
+                    return redirect(reverse(settings.RETURN_URL))
+                except:
+                    error = tree.find('error')
+                    print "Transaction error: %s." % error.text
+                    raise Http404
+
+    else:
+        form = RecurlyForm(instance=request.user)
+    return {'form': form}
+

@@ -122,12 +122,14 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 # payment settings PayPal
-PP_USER = 'greg_1309017533_biz_api1.dobroe.ru'
-PP_PASSWORD = '1309017586'
-PP_SIGNATURE = 'AMu.tC-xBb2JglwhO-LP4bOhofllAKoefhFGaUa5QX10X0REEnl0Zle1'
 RETURN_URL = 'payment-return'
 CANCEL_URL = 'payment-cancel'
 PAYPAL_RECEIVER_EMAIL = 'greg_1309080665_biz@dobroe.ru'
+
+# Recurly
+RUSER = 'api-test@greg-test.com'
+RPASSWD = '011f4db3597449caa368d7016776d0dd'
+RSUBDOMAIN = 'greg-test'
 
 try:
     from local_settings import *

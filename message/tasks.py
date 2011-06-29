@@ -39,6 +39,12 @@ def mailbox_phones(host, username, password, user,
         else:
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
 
+    mailbox = MailBox.objects.get(username=username)
+    mailbox.status = 3
+    mailbox.last_scrape = datetime.now()
+    mailbox.save()
+    print "stoped"
+
     return ans
 
 

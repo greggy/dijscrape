@@ -23,6 +23,7 @@ urlpatterns = patterns('',
     url(r'^payment/success/$', 'message.views.payment_status', {'status': 'success'}, name='payment-return'),
     url(r'^payment/cancel/$', 'message.views.payment_status', {'status': 'cancel'}, name='payment-cancel'),
     url(r'^payment/paypal/$', 'message.views.set_paypal', name='payment-paypal'),
+    url(r'^payment/recurly/$', 'message.views.set_recurly', name='payment-recurly'),
     (r'^payment/notify/$', include('paypal.standard.ipn.urls')),
 
     url(r'^accounts/register/$', 'registration.views.register',
