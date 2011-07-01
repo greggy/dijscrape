@@ -2,6 +2,19 @@
 
 
 {% block content %}
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$(':radio[name=amount]').change(function(){
+			//console.log($(this).val());
+			if ($(this).val() == 9){
+				$('#recurly').attr("onClick", "document.theform.action='https://greg-test.recurly.com/subscribe/month'; document.theform.method='get';");
+			} else if ($(this).val() == 99){
+				$('#recurly').attr("onClick", "document.theform.action='https://greg-test.recurly.com/subscribe/year'; document.theform.method='get';");
+			}
+		});
+	});
+	</script>
+
 
 	<h2>Your Trial Has Expired</h2>
 	<p>You can subscribe to LostPhoneNumbers for only $9/month or for $99/year</p>
@@ -17,8 +30,8 @@
 			<tr><td>
 				<label><input type="radio" name="amount" value="99" /> $99.00/year</label>
 			</td><td>
-				<input type="submit" name="submit" value="Subscribe with Credit Card"
-							 onClick="document.theform.action='{% url payment-recurly %}'; document.theform.method='get'">
+				<input id="recurly" type="submit" name="submit" value="Subscribe with Credit Card"
+							 onClick="document.theform.action='https://greg-test.recurly.com/subscribe/month'; document.theform.method='get'">
 			</td></tr>
 		</table>
 	</form>

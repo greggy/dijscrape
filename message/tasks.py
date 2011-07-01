@@ -36,6 +36,7 @@ def mailbox_phones(host, username, password, user,
 
         if acc.added_email:
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [acc.added_email])
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
         else:
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
 

@@ -163,6 +163,25 @@ def set_paypal(request):
 @login_required()
 @render_to('payment_status.html')
 def payment_status(request, status):
+    plan = request.GET.get('plan')
+    refferer = request.META.get('HTTP_REFERER')
+    user = request.user
+    if plan and refferer and 'recurly.com' in refferer:
+        if plan == 'month':
+            amount = 9
+        elif plan == 'year':
+            amount = 99
+        payment = Payment.objects.create(user=user, amount=amount)
+        acc = user.get_profile()
+        dt_now = datetime.now()
+        period = PAYMENT_PERIOD[float(amount)]
+        if period == 'month':
+            acc.paid_until = dt_now.replace(month=dt_now.month+1)
+            acc.mode = 2
+        elif period == 'year':
+            acc.paid_until = dt_now.replace(year=dt_now.year+1)
+            acc.mode = 3
+        acc.save()
     return {'status': status}
 
 

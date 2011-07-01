@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from django.contrib.auth import login
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 
 from const import *
 
@@ -89,3 +91,4 @@ class Payment(models.Model):
 
     def __unicode__(self):
         return self.user.username
+

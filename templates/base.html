@@ -17,17 +17,21 @@
 		<p><a href="{% url auth_logout %}">Logout as {{ user.username }}</a></p>
 	{% endif %}
 
+	{% if user.is_authenticated %}
 	<p>Your account type is: {{ user.get_profile.get_mode_display }}</p>
-	{% if user.get_profile.paid_until %}
-		<p>Expired data: {{ user.get_profile.paid_until|date:"M d Y H:i" }}</p>
+		{% if user.get_profile.paid_until %}
+			<p>Expired data: {{ user.get_profile.paid_until|date:"M d Y H:i" }}</p>
+		{% endif %}
 	{% endif %}
 
+	{% if user.is_authenticated %}
 	<div>
 		<form action="{% url search %}" method="get">
 			<input type="text" name="q" />
 			<input type="submit" value="Search" />
 		</form>
 	</div>
+	{% endif %}
 </div>
 
 <div>

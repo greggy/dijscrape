@@ -9,9 +9,23 @@
 	<table>
 		<form action="" method="post">
 			{% csrf_token %}
-			{{ form.as_table }}
-
-			<tr><td colspan="2">
+			<tr><th>
+				<label>Email address: *</label>
+			</th><td>
+				{{ form.email }} {% if form.email.errors %}{{ form.email.errors }}{% endif %}
+			</td></tr>
+			<tr><th>
+				<label>Password: *</label>
+			</th><td>
+				{{ form.password1 }} {% if form.password1.errors %}{{ form.password1.errors }}{% endif %}
+			</td></tr>
+			<tr><th>
+				<label>Password (again): *</label>
+			</th><td>
+				{{ form.password2 }} {% if form.password2.errors %}{{ form.password2.errors }}{% endif %}
+															{% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+			</td></tr>
+			<tr><td>
 				<input type="submit" />
 			</td></tr>
 		</form>

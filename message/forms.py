@@ -14,9 +14,11 @@ from registration.models import RegistrationProfile
 
 
 class RegisterForm(RegistrationFormUniqueEmail):
+    username = forms.CharField(required=False)
+
     def save(self, profile_callback=None):
         new_user = RegistrationProfile.objects.create_inactive_user(
-            username=self.cleaned_data['username'],
+            username=self.cleaned_data['email'],
             password=self.cleaned_data['password1'],
             email=self.cleaned_data['email'])
 
