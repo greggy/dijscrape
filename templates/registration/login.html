@@ -6,10 +6,20 @@
 	<h2>Login Form</h2>
 
 
+	{% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
 	<table>
 		<form action="" method="post">
 			{% csrf_token %}
-			{{ form.as_table }}
+			<tr><th>
+				<label for="id_username">Email:</label>
+			</th><td>
+				{{ form.username }} {% if form.username.errors %}{{ form.username.errors }}{% endif %}
+			</td></tr>
+			<tr><th>
+				<label for="id_password">Password:</label>
+			</th><td>
+				{{ form.password }} {% if form.password.errors %}{{ form.password.errors }}{% endif %}
+			</td></tr>
 
 			<tr><td colspan="2">
 				<a href="{% url registration_register %}">Registration</a>

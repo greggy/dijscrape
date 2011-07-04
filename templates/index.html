@@ -6,6 +6,7 @@
 	<script type="text/javascript">
 	function ReScrape(mailbox_id) {
 		$.get('/rescrape/'+mailbox_id+'/');
+		$('#rescrape_link').text('Rescrape was started. Please, refresh the page after some minute.');
 	}
 	</script>
 
@@ -17,7 +18,13 @@
 	{% for mailbox in mailboxes %}
 	<h3>{{ mailbox.username }}</h3>
 		<p>
-			<a href="javascript:void(0);" onclick="javascript:ReScrape({{ mailbox.id }});">Re-Scrape this mailbox</a><br />
+			<div id="rescrape_link">
+				{% if mailbox.status == 2 %}
+				Rescrape was started. Please, refresh the page after some minute.
+				{% else %}
+				<a href="javascript:void(0);" onclick="javascript:ReScrape({{ mailbox.id }});">Re-Scrape this mailbox</a><br />
+				{% endif %}
+			</div>
 			<a href="{% url edit-mailbox mailbox.id %}">Edit</a>
 			<table border="1">
 				<tr><th>Name</th><th>Phone</th><th>Email</th><th>Subject</th><th>Context</th></tr>
@@ -27,7 +34,7 @@
 					<td>{% if forloop.counter > 3 and user.get_profile.mode == 1 %}Trail mode{% else %}{{ item.value }}{% endif %}</td>
 					<td>{{ item.message.sender_email }}</td>
 					<td>{{ item.message.subject }}</td>
-					<td>{{ item.message.payload|truncatewords:"10" }}</td>
+					<td>{{ item.message.payload }}</td>
 				</tr>
 				{% endfor %}
 			</table>

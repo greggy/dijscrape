@@ -3,11 +3,10 @@ import base64
 import urllib2
 import uuid
 
-from django.db.models.query_utils import Q
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.shortcuts import redirect, get_object_or_404
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
@@ -206,6 +205,31 @@ def ipn_success(sender, **kwargs):
     print "Mode was changed for %s." % user.username
 
 payment_was_successful.connect(ipn_success)
+
+
+@csrf_exempt
+def recurly_notify(request):
+    if request.method == 'POST':
+        from xml.dom.minidom import parseString
+
+        print request.raw_post_data
+
+        tree = parseString(request.raw_post_data)
+        try:
+            tree.getElementsByTagName('successful_payment_notification')
+            email = tree.getElementsByTagName('email')[0]
+            first_name = tree.getElementsByTagName('first_name')[0]
+            last_name = tree.getElementsByTagName('last_name')[0]
+            payment_id = tree.getElementsByTagName('id')[0]
+            amount = tree.getElementsByTagName('amount_in_cents')[0]
+            RecurlyIPN.objects.create(email=email.firstChild.data, first_name=first_name.firstChild.data,
+                                      last_name=last_name.firstChild.data, payment_id=payment_id.firstChild.data,
+                                      amount=(int(amount.firstChild.data) / 100))
+        except:
+            raise HttpResponseBadRequest
+    else:
+        return HttpResponseNotAllowed(['POST'])
+    return HttpResponse('OK')
 
 
 @login_required()

@@ -92,3 +92,23 @@ class Payment(models.Model):
     def __unicode__(self):
         return self.user.username
 
+
+class RecurlyIPN(models.Model):
+    email = models.EmailField()
+    #username = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    payment_id = models.CharField(max_length=255)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    date_add = models.DateField(auto_now_add=True)
+
+    def __unicode__(self):
+        return self.email
+
+
+def create_account(sender, **kwargs):
+    user = kwargs['instance']
+    if kwargs['created']:
+        Account.objects.create(user=user, added_email=user.email)
+
+post_save.connect(create_account, sender=User)

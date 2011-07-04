@@ -22,9 +22,11 @@ class RegisterForm(RegistrationFormUniqueEmail):
             password=self.cleaned_data['password1'],
             email=self.cleaned_data['email'])
 
+        '''
         new_account = Account.objects.create(
             user=new_user
         )
+        '''
 
         return new_user
 
