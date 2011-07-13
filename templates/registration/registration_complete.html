@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 
 
+{% block extra_head %}
+	{% if user.is_authenticated %}
+		<meta http-equiv="refresh" content="5; url=/">
+	{% endif %}
+{% endblock %}
+
 {% block content %}
 
 	<h2>Registration was completed. To activate your account just click on the link in email.</h2>

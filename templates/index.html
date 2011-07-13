@@ -26,18 +26,22 @@
 				{% endif %}
 			</div>
 			<a href="{% url edit-mailbox mailbox.id %}">Edit</a>
-			<table border="1">
-				<tr><th>Name</th><th>Phone</th><th>Email</th><th>Subject</th><th>Context</th></tr>
-				{% for item in mailbox.phonenumber_set.all %}
-				<tr>
-					<td>{{ item.message.sender_name }}</td>
-					<td>{% if forloop.counter > 3 and user.get_profile.mode == 1 %}Trail mode{% else %}{{ item.value }}{% endif %}</td>
-					<td>{{ item.message.sender_email }}</td>
-					<td>{{ item.message.subject }}</td>
-					<td>{{ item.message.payload }}</td>
-				</tr>
-				{% endfor %}
-			</table>
+			{% if mailbox.phonenumber_set.count == 0 and mailbox.status == 2 %}
+				<p>Scraping is in progress, refresh the page earlier or wait for the email in your inbox.</p>
+			{% else %}
+				<table border="1">
+					<tr><th>Name</th><th>Phone</th><th>Email</th><th>Subject</th><th>Context</th></tr>
+					{% for item in mailbox.phonenumber_set.all %}
+					<tr>
+						<td>{{ item.message.sender_name }}</td>
+						<td>{% if forloop.counter > 3 and user.get_profile.mode == 1 %}Trail mode{% else %}{{ item.value }}{% endif %}</td>
+						<td>{{ item.message.sender_email }}</td>
+						<td>{{ item.message.subject }}</td>
+						<td>{{ item.message.payload }}</td>
+					</tr>
+					{% endfor %}
+				</table>
+			{% endif %}
 		</p>
 	{% endfor %}
 

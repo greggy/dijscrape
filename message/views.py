@@ -212,7 +212,7 @@ def recurly_notify(request):
     if request.method == 'POST':
         from xml.dom.minidom import parseString
 
-        print request.raw_post_data
+        #print request.raw_post_data
 
         tree = parseString(request.raw_post_data)
         try:

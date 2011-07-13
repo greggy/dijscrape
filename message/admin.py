@@ -24,11 +24,15 @@ class PhoneNumberAdmin(admin.ModelAdmin):
         return phoneNumber.message.payload
 
 
+class MailBoxAdmin(admin.ModelAdmin):
+    list_display = ['username', 'user', 'status', 'last_scrape']
+
+
 admin.site.register(Message, MessageAdmin)
 admin.site.register(PhoneNumber, PhoneNumberAdmin)
+admin.site.register(MailBox, MailBoxAdmin)
 
 admin.site.register(Server)
-admin.site.register(MailBox)
 admin.site.register(Account)
 admin.site.register(Payment)
 admin.site.register(RecurlyIPN)

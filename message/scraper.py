@@ -38,14 +38,6 @@ class Analizer:
         raw_message = message_data[0][1] # message_data, the data structure returned by imaplib, encodes some data re: the request type
         header = HeaderParser().parsestr(raw_message)
 
-        '''
-        # check if email wasn't scrape earlier
-        print 'header received:', header['Received'].split(';')[-1]
-        date_str = header['Received'].split(';')[-1]
-        date = datetime( *(rfc822.parsedate_tz(date_str)[:6]) )
-        if date > self.mailbox.last_scrape:
-        '''
-
         if header['Content-Type'] is not None and 'multipart' in header['Content-Type']:
             print "INcorrect content type"
             return False # right now we're just skipping any multipart messages. this needs to be rewritten to parse the text parts of said messgs.
@@ -57,8 +49,9 @@ class Analizer:
 
         text_payload = message_data[0][1]
         found_digits = number_re.findall(text_payload)
+        found_digits += number_re.findall(header['Subject'])
 
-        if found_digits != []:
+        if len(found_digits) > 0:
             print "Message %d has numbers." % num(self.number)
             print found_digits
             ### need to cast the Date header into a MySQL object.
