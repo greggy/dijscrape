@@ -33,15 +33,18 @@ class RegisterForm(RegistrationFormUniqueEmail):
 
 class ServerForm(forms.ModelForm):
     server_choice = forms.ChoiceField()
+    username = forms.CharField()
+    password = forms.CharField()
 
     class Meta:
         model = Server
-        fields = ('server_choice', 'host', 'port')
+        fields = ('server_choice', 'host', 'port', 'username', 'password')
 
     def __init__(self, *args, **kwargs):
         super(ServerForm, self).__init__(*args, **kwargs)
         self.fields['server_choice'].choices = [ (i[0], u'%s:%s' % (i[1], i[2])) for i in Server.objects.all()\
                                                         .values_list('id', 'host', 'port') ] + [(0, u'Other...')]
+        self.edit = True if 'instance' in kwargs else False
 
     def clean(self):
         cd = self.cleaned_data
@@ -50,13 +53,20 @@ class ServerForm(forms.ModelForm):
             check_connection = scrap.check_connection()
             if not check_connection:
                 raise forms.ValidationError(u"Check if imap server's host/port correct!")
+        if cd.get('host') and cd.get('port') and cd.get('username') and cd.get('password'):
+            scrap = scraper.IMAPConnecter(host=cd['host'], port=cd['port'],
+                                          email=cd['username'], password=cd['password'])
+            try:
+                imap = scrap.get_connection()
+            except:
+                raise forms.ValidationError(u"Check if your credentials are correct!")
+        if not self.edit and cd.get('username') and cd.get('password'):
+            try:
+                MailBox.objects.get(username=cd['username'])
+                raise forms.ValidationError(u"Such mailbox exists, try to enter another!")
+            except MailBox.DoesNotExist:
+                pass
         return cd
-
-
-class MailBoxForm(forms.ModelForm):
-    class Meta:
-        model = MailBox
-        fields = ('username', 'password')
 
 
 class AddEmailForm(forms.ModelForm):

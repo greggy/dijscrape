@@ -3,6 +3,7 @@ import base64
 import urllib2
 import uuid
 
+from django.db.models.query_utils import Q
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -50,33 +51,32 @@ def add_mailbox(request):
         Add server host, port to db if it not exist yet.
     '''
     if request.method == 'POST':
-        sform = ServerForm(request.POST)
-        mform = MailBoxForm(request.POST)
-        if sform.is_valid() and mform.is_valid():
-            scd = sform.cleaned_data
-            mcd = mform.cleaned_data
-            print scd, mcd
+        form = ServerForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            #mcd = mform.cleaned_data
             try:
-                server = Server.objects.get(host=scd['host'], port=scd['port'])
+                server = Server.objects.get(host=cd['host'], port=cd['port'])
             except Server.DoesNotExist:
-                server = sform.save()
-            mailbox = mform.save(commit=False)
+                server = form.save()
+            mailbox = MailBox()
+            mailbox.username = cd['username']
+            mailbox.password = cd['password']
             mailbox.user = request.user
             mailbox.server = server
             mailbox.save()
             # add asynchronous task
-            tasks.mailbox_phones.delay(scd['host'], mcd['username'], mcd['password'], request.user, request.get_host())
+            tasks.mailbox_phones.delay(cd['host'], cd['username'], cd['password'], request.user, request.get_host())
             #tasks.test.delay(23, 44)
             return redirect(reverse('add-mailbox-success', args=[mailbox.id]))
         else:
-            print sform.errors, mform.errors
+            print form.errors
     else:
         context = {
-            'username': request.user.email
+            'username': request.user.email,
         }
-        sform = ServerForm()
-        mform = MailBoxForm(initial=context)
-    return {'sform': sform, 'mform': mform}
+        form = ServerForm(initial=context)
+    return {'form': form}
 
 
 
@@ -85,24 +85,24 @@ def add_mailbox(request):
 def edit_mailbox(request, mailbox_id):
     mailbox = get_object_or_404(MailBox, pk=mailbox_id, user=request.user)
     if request.method == 'POST':
-        sform = ServerForm(request.POST, instance=mailbox.server)
-        mform = MailBoxForm(request.POST, instance=mailbox)
-        if sform.is_valid() and mform.is_valid():
-            scd = sform.cleaned_data
-            mcd = mform.cleaned_data
+        form = ServerForm(request.POST, instance=mailbox.server)
+        if form.is_valid():
+            cd = form.cleaned_data
             try:
-                server = Server.objects.get(host=scd['host'], port=scd['port'])
+                server = Server.objects.get(host=cd['host'], port=cd['port'])
             except Server.DoesNotExist:
-                server = sform.save()
-            mailbox = mform.save(commit=False)
-            mailbox.user = request.user
-            mailbox.server = server
+                server = form.save()
+            mailbox.username = cd['username']
+            mailbox.password = cd['password']
             mailbox.save()
             return redirect(reverse('index'))
     else:
-        sform = ServerForm(instance=mailbox.server)
-        mform = MailBoxForm(instance=mailbox)
-    return {'sform': sform, 'mform': mform}
+        context = {
+            'username': mailbox.username,
+            'password': mailbox.password
+        }
+        form = ServerForm(instance=mailbox.server, initial=context)
+    return {'form': form}
 
 
 
