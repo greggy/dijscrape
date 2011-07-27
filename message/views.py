@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import base64
+import cgi
 import urllib2
 import uuid
+import oauth2 as oauth
 
 from django.db.models.query_utils import Q
 from django.template.loader import render_to_string
@@ -37,8 +39,11 @@ def index(request):
 @login_required()
 def rescrape(request, mailbox_id):
     mailbox = MailBox.objects.get(pk=mailbox_id)
-    tasks.mailbox_phones.delay(mailbox.server.host, mailbox.username,
-                               mailbox.password, request.user, request.get_host())
+    if mailbox.use_oauth:
+        return redirect(reverse('oauth-scraper', args=[mailbox_id]))
+    else:
+        tasks.mailbox_phones.delay(mailbox.server.host, request.user, request.get_host(),
+                                   mailbox.username, mailbox.password)
     return HttpResponse("OK")
 
 
@@ -54,7 +59,6 @@ def add_mailbox(request):
         form = ServerForm(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
-            #mcd = mform.cleaned_data
             try:
                 server = Server.objects.get(host=cd['host'], port=cd['port'])
             except Server.DoesNotExist:
@@ -64,11 +68,16 @@ def add_mailbox(request):
             mailbox.password = cd['password']
             mailbox.user = request.user
             mailbox.server = server
+            mailbox.use_oauth = cd['use_oauth']
             mailbox.save()
-            # add asynchronous task
-            tasks.mailbox_phones.delay(cd['host'], cd['username'], cd['password'], request.user, request.get_host())
-            #tasks.test.delay(23, 44)
-            return redirect(reverse('add-mailbox-success', args=[mailbox.id]))
+            oauth = cd['use_oauth']
+            if oauth:
+                return redirect(reverse('oauth-login', args=[mailbox.id]))
+            else:
+                # add asynchronous task
+                tasks.mailbox_phones.delay(cd['host'], request.user, request.get_host(), cd['username'], cd['password'])
+                #tasks.test.delay(23, 44)
+                return redirect(reverse('add-mailbox-success', args=[mailbox.id]))
         else:
             print form.errors
     else:
@@ -94,8 +103,13 @@ def edit_mailbox(request, mailbox_id):
                 server = form.save()
             mailbox.username = cd['username']
             mailbox.password = cd['password']
+            mailbox.use_oauth = cd['use_oauth']
             mailbox.save()
-            return redirect(reverse('index'))
+            oauth = cd['use_oauth']
+            if oauth:
+                return redirect(reverse('oauth-login', args=[mailbox.id]))
+            else:
+                return redirect(reverse('index'))
     else:
         context = {
             'username': mailbox.username,
@@ -313,3 +327,54 @@ def set_recurly(request):
         form = RecurlyForm(instance=request.user)
     return {'form': form}
 
+
+## oauth
+@login_required()
+def oauth_scraper(request, mailbox_id):
+    mailbox = get_object_or_404(MailBox, pk=mailbox_id, user=request.user)
+    tasks.mailbox_phones.delay(mailbox.server.host, request.user, request.get_host(), mailbox.username,
+                               oauth_token=mailbox.oauth_token, oauth_secret=mailbox.oauth_secret)
+    return redirect(reverse('add-mailbox-success', args=[mailbox.id]))
+
+
+scope = "https://mail.google.com/"
+consumer = oauth.Consumer(settings.GOOGLE_TOKEN, settings.GOOGLE_SECRET)
+client = oauth.Client(consumer)
+
+
+@login_required()
+def oauth_login(request, mailbox_id):
+    resp, content = client.request(settings.REQUEST_TOKEN_URL + '?scope={0}'.format(scope), "GET")
+    if resp['status'] != '200':
+        raise Exception("Invalid response from Google.")
+
+    request.session['request_token'] = dict(cgi.parse_qsl(content))
+    url = "%s?oauth_token=%s&oauth_callback=https://%s%s" % (settings.AUTHORIZATION_URL,
+                                                     request.session['request_token']['oauth_token'],
+                                                     request.get_host(), reverse('oauth-authenticated', args=[mailbox_id]))
+
+    return redirect(url)
+
+
+@login_required()
+def oauth_authenticated(request, mailbox_id):
+    token = oauth.Token(request.session['request_token']['oauth_token'],
+        request.session['request_token']['oauth_token_secret'])
+    client = oauth.Client(consumer, token)
+
+    resp, content = client.request(settings.ACCESS_TOKEN_URL, "GET")
+    if resp['status'] != '200':
+        raise Exception("Invalid response from Google.")
+
+    access_token = dict(cgi.parse_qsl(content))
+
+    try:
+        mailbox = MailBox.objects.get(pk=mailbox_id)
+        mailbox.oauth_token = access_token['oauth_token']
+        mailbox.oauth_secret = access_token['oauth_token_secret']
+        mailbox.save()
+    except MailBox.DoesNotExist:
+        raise Exception("There is not such mailbox.")
+
+    return redirect(reverse('oauth-scraper', args=[mailbox_id]))
+    #return redirect('/')

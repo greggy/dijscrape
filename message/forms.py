@@ -34,11 +34,12 @@ class RegisterForm(RegistrationFormUniqueEmail):
 class ServerForm(forms.ModelForm):
     server_choice = forms.ChoiceField()
     username = forms.CharField()
-    password = forms.CharField()
+    password = forms.CharField(required=False)
+    use_oauth = forms.BooleanField(label='Use oauth?', required=False)
 
     class Meta:
         model = Server
-        fields = ('server_choice', 'host', 'port', 'username', 'password')
+        fields = ('server_choice', 'host', 'port', 'username', 'password', 'use_oauth')
 
     def __init__(self, *args, **kwargs):
         super(ServerForm, self).__init__(*args, **kwargs)
@@ -66,6 +67,8 @@ class ServerForm(forms.ModelForm):
                 raise forms.ValidationError(u"Such mailbox exists, try to enter another!")
             except MailBox.DoesNotExist:
                 pass
+        if cd.get('use_oauth') and cd.get('host') != 'imap.googlemail.com':
+            raise forms.ValidationError(u"Sorry, but now we can auth your mailbox only for GMail!")
         return cd
 
 

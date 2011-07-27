@@ -35,6 +35,13 @@
 				}
 				//console.log($('#id_host').val());
 			});
+
+			// use_oauth reaction
+			$('#id_use_oauth').change(function() {
+				$('#id_password').closest('tr').toggle('slow', function(){
+					$('#id_password').val('');
+				});
+			});
 		})
 	</script>
 

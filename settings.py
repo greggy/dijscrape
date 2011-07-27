@@ -131,6 +131,14 @@ RUSER = 'api-test@greg-test.com'
 RPASSWD = '011f4db3597449caa368d7016776d0dd'
 RSUBDOMAIN = 'greg-test'
 
+# Google API
+GOOGLE_TOKEN = 'dijscrape.ep.io'
+GOOGLE_SECRET = 'olQ6O5WoRJ4hIPKZ9rO9VlNE'
+
+REQUEST_TOKEN_URL = 'https://www.google.com/accounts/OAuthGetRequestToken'
+AUTHORIZATION_URL = 'https://www.google.com/accounts/OAuthAuthorizeToken'
+ACCESS_TOKEN_URL = 'https://www.google.com/accounts/OAuthGetAccessToken'
+
 try:
     from local_settings import *
 except ImportError:

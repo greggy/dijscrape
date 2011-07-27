@@ -17,6 +17,11 @@ urlpatterns = patterns('',
     url(r'^add_mailbox_success/(\d+)/$', 'message.views.add_mailbox_success', name='add-mailbox-success'),
     url(r'^rescrape/(\d+)/$', 'message.views.rescrape', name='rescrape'),
 
+    #oauth
+    url(r'^oauth_login/(\d+)/$', 'message.views.oauth_login', name='oauth-login'),
+    url(r'^oauth_scraper/(\d+)/$', 'message.views.oauth_scraper', name='oauth-scraper'),
+    url(r'^oauth_login/authenticated/(\d+)/$', 'message.views.oauth_authenticated', name='oauth-authenticated'),
+
     # payment urls
     url(r'^payment/$', 'django.views.generic.simple.direct_to_template',
             {'template': 'payment.html'}, name='payment'),

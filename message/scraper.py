@@ -10,6 +10,7 @@ from email.parser import HeaderParser
 from dateutil.parser import parse
 
 from models import *
+import settings
 from utils import num, uniqify
 
 nanp_pattern = '(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?'
@@ -38,9 +39,11 @@ class Analizer:
         raw_message = message_data[0][1] # message_data, the data structure returned by imaplib, encodes some data re: the request type
         header = HeaderParser().parsestr(raw_message)
 
+        '''
         if header['Content-Type'] is not None and 'multipart' in header['Content-Type']:
             print "INcorrect content type"
             return False # right now we're just skipping any multipart messages. this needs to be rewritten to parse the text parts of said messgs.
+        '''
         try:
             response, message_data = self.imap.fetch(self.number, '(BODY.PEEK[TEXT])')
         except:
@@ -105,11 +108,22 @@ class IMAPConnecter:
         self.mail_count = 0
 
     def get_connection(self):
+        print self.host, self.port
         imap = imaplib.IMAP4_SSL(self.host, self.port)
         imap.login(self.email, self.password)
         response, mail_count = imap.select()
         self.mail_count = int(mail_count[0])
         return imap
+
+    def get_outh_connection(self, consumer, token):
+        import oauth2.clients.imap as imaplib
+        url = "https://mail.google.com/mail/b/%s/imap/" % self.email
+        conn = imaplib.IMAP4_SSL('imap.googlemail.com')
+        #conn.debug = 4
+        conn.authenticate(url, consumer, token)
+        response, mail_count = conn.select()
+        self.mail_count = int(mail_count[0])
+        return conn
 
     def check_connection(self):
         u'''
@@ -132,24 +146,35 @@ class Scraper:
         port 993 - SSL connection
         port 143 - simple connection (unsecured)
     '''
-    def __init__(self, host, email, password, user, port=993, ssl=True):
+    def __init__(self, host, user, email, password=False, oauth_token=False, oauth_secret=False, port=993, ssl=True):
         self.email = email
         self.password = password
         self.host = host
         self.port = port
         self.user = user
+        self.oauth_token = oauth_token
+        self.oauth_secret = oauth_secret
         self.analizers = []
 
     def run(self):
-        print 'Connecting to the Google IMAP server'
-        conn = IMAPConnecter(self.host, self.port, self.email, self.password)
-        imap = conn.get_connection()
+        if self.oauth_token and self.oauth_secret:
+            print 'Connecting to the Google IMAP server with oauth'
+            import oauth2 as oauth
 
-        print "Messages to process:", conn.get_mail_count()
+            consumer = oauth.Consumer(settings.GOOGLE_TOKEN, settings.GOOGLE_SECRET)
+            token = oauth.Token(self.oauth_token, self.oauth_secret)
+            conn = IMAPConnecter(self.host, self.port, self.email)
+            imap = conn.get_outh_connection(consumer, token)
+        else:
+            print 'Connecting to the Google IMAP server with credentials'
+            conn = IMAPConnecter(self.host, self.port, self.email, self.password)
+            imap = conn.get_connection()
+
+        print "Messages to process: %d" % conn.get_mail_count()
 
         response, list_of_messages = imap.search(None, 'ALL')
         mlist = list_of_messages[0].split()
-        mailbox = MailBox.objects.get(username=self.email, password=self.password)
+        mailbox = MailBox.objects.get(username=self.email)
 
         phones = 0
         for item in range(0, conn.get_mail_count()):

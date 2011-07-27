@@ -60,9 +60,12 @@ class MailBox(models.Model):
     user = models.ForeignKey(User)
     server = models.ForeignKey(Server)
     username = models.CharField(max_length=255, unique=True)
-    password = models.CharField(max_length=100)
+    password = models.CharField(max_length=100, blank=True)
     status = models.PositiveSmallIntegerField(choices=STATUS_CHOICE, default=1)
     last_scrape = models.DateTimeField(default=datetime.now())
+    use_oauth = models.BooleanField(default=False)
+    oauth_token = models.CharField(max_length=200, blank=True)
+    oauth_secret = models.CharField(max_length=200, blank=True)
 
     def __unicode__(self):
         return u'%s %s %s' % (self.server, self.username, self.status)

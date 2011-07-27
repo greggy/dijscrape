@@ -11,13 +11,13 @@ import settings
 
 
 @task()
-def mailbox_phones(host, username, password, user,
-                   current_host, port=993, send_email=True):
+def mailbox_phones(host, user, current_host, username, password=False,
+                   oauth_token=False, oauth_secret=False, port=993, send_email=True):
     """
         Task will run when user save mailbox information.
     """
     print "Start scraper!!!"
-    scrap = Scraper(host, username, password, user)
+    scrap = Scraper(host, user, username, password, oauth_token, oauth_secret)
     ans = scrap.run()
     mailbox = MailBox.objects.get(username=username)
     mailbox.status = 2

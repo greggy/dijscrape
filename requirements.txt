@@ -1,3 +1,4 @@
 -e git+http://github.com/greggy/django-registration.git#egg=registration
 redis==2.4.5
 south
+-e git+https://github.com/simplegeo/python-oauth2.git#egg=oauth2
