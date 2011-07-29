@@ -61,7 +61,7 @@ class ServerForm(forms.ModelForm):
                 imap = scrap.get_connection()
             except:
                 raise forms.ValidationError(u"Check if your credentials are correct!")
-        if not self.edit and cd.get('username') and cd.get('password'):
+        if not self.edit and cd.get('username'):
             try:
                 MailBox.objects.get(username=cd['username'])
                 raise forms.ValidationError(u"Such mailbox exists, try to enter another!")
@@ -69,6 +69,8 @@ class ServerForm(forms.ModelForm):
                 pass
         if cd.get('use_oauth') and cd.get('host') != 'imap.googlemail.com':
             raise forms.ValidationError(u"Sorry, but now we can auth your mailbox only for GMail!")
+        if not cd.get('use_oauth') and not cd.get('password'):
+            raise forms.ValidationError(u"You should make choice oauth or password authorization!")
         return cd
 
 

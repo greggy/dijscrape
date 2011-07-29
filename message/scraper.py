@@ -39,11 +39,9 @@ class Analizer:
         raw_message = message_data[0][1] # message_data, the data structure returned by imaplib, encodes some data re: the request type
         header = HeaderParser().parsestr(raw_message)
 
-        '''
         if header['Content-Type'] is not None and 'multipart' in header['Content-Type']:
             print "INcorrect content type"
             return False # right now we're just skipping any multipart messages. this needs to be rewritten to parse the text parts of said messgs.
-        '''
         try:
             response, message_data = self.imap.fetch(self.number, '(BODY.PEEK[TEXT])')
         except:

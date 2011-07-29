@@ -78,8 +78,6 @@ def add_mailbox(request):
                 tasks.mailbox_phones.delay(cd['host'], request.user, request.get_host(), cd['username'], cd['password'])
                 #tasks.test.delay(23, 44)
                 return redirect(reverse('add-mailbox-success', args=[mailbox.id]))
-        else:
-            print form.errors
     else:
         context = {
             'username': request.user.email,
